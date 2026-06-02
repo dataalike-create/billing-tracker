@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Billing Tracker</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background: #F0F2F8; min-height: 100vh;
+  color: #1A1D2E; font-size: 14px; line-height: 1.4;
+}
+.header {
+  background: white; border-bottom: 1px solid #E2E5F0;
+  padding: 14px 20px; display: flex; align-items: center;
+  justify-content: space-between; position: sticky; top: 0; z-index: 10;
+}
+.tabs { background: white; border-bottom: 1px solid #E2E5F0; padding: 0 20px; display: flex; }
+.content { padding: 18px 20px; max-width: 900px; margin: 0 auto; }
+
+.card { background: white; border: 1px solid #E2E5F0; border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 4px; }
+.stat-card  { background: white; border: 1px solid #E2E5F0; border-radius: 10px; padding: 14px 16px; }
+.stat-num   { font-size: 24px; font-weight: 700; }
+.stat-lbl   { font-size: 11px; color: #6B7280; margin-top: 2px; }
+
+.tab-btn {
+  cursor: pointer; background: none; border: none; font-family: inherit;
+  padding: 11px 16px; font-size: 13px; font-weight: 400; color: #6B7280;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tab-btn.active { font-weight: 600; color: #2563EB; border-bottom-color: #2563EB; }
+.filter-pill {
+  cursor: pointer; padding: 5px 11px; border-radius: 20px; font-size: 11px;
+  font-weight: 500; border: 1px solid #D1D5E0; background: none; color: #6B7280; font-family: inherit;
+}
+.filter-pill.active { background: #EEF2FF; color: #2563EB; border-color: #2563EB; }
+
+.home-wrap { position: relative; }
+.home-dropdown {
+  position: absolute; top: calc(100% + 3px); left: 0; right: 0; z-index: 200;
+  background: white; border: 1px solid #D1D5E0; border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12); max-height: 220px; overflow-y: auto;
+  display: none;
+}
+.home-dropdown.open { display: block; }
+.home-opt {
+  padding: 8px 12px; cursor: pointer; font-size: 13px;
+  border-bottom: 1px solid #F4F5F8;
+}
+.home-opt:last-child { border-bottom: none; }
+.home-opt:hover, .home-opt.focused { background: #EEF2FF; color: #2563EB; }
+
+.batch-header {
+  cursor: pointer; padding: 13px 16px;
+  display: grid; grid-template-columns: 1fr auto auto;
+  gap: 12px; align-items: center;
+}
+.batch-header:hover { background: #FAFBFD; }
+.batch-body { border-top: 1px solid #F0F2F8; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+.step-bar  { display: flex; align-items: flex-start; }
+.step-item { display: flex; align-items: center; flex: 1; }
+.step-dot-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.step-dot  { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+.step-lbl  { font-size: 9px; font-weight: 500; text-align: center; max-width: 64px; line-height: 1.2; }
+.step-line { flex: 1; height: 2px; margin: 0 3px; margin-bottom: 14px; }
+
+.action-zone { border-radius: 8px; padding: 13px 14px; border: 1px solid; }
+.az-blue  { background: #F0F9FF; border-color: #BAE6FD; }
+.az-amber { background: #FFFBEB; border-color: #FCD34D; }
+.az-green { background: #F0FDF4; border-color: #86EFAC; }
+.action-prompt { font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 6px; }
+.action-hint   { font-size: 11px; color: #6B7280; margin-bottom: 10px; }
+
+/* Buttons — NO onclick, all handled via data-action */
+.btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: none; font-family: inherit; cursor: pointer;
+  border-radius: 7px; font-weight: 600; font-size: 12px; padding: 8px 18px;
+  transition: opacity 0.12s;
+}
+.btn:hover { opacity: 0.85; }
+.btn-blue    { background: #2563EB; color: white; }
+.btn-primary { background: linear-gradient(135deg,#2563EB,#7C3AED); color: white; }
+.btn-sm      { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 5px; border: none; font-family: inherit; cursor: pointer; }
+.btn-confirm { background: #059669; color: white; }
+.btn-reject  { background: white; color: #DC2626; border: 1.5px solid #DC2626 !important; }
+.btn-clear   { background: white; color: #6B7280; border: 1px solid #D1D5E0 !important; }
+.btn-archive { background: white; color: #9CA3AF; border: 1px solid #D1D5E0 !important; font-size: 9px; }
+.btn-resubmit{ background: #DC2626; color: white; white-space: nowrap; }
+.btn-ghost   { background: none; border: 1px solid #D1D5E0; color: #6B7280; font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 5px; font-family: inherit; cursor: pointer; }
+.btn-ghost-green { background: none; border: 1px solid #059669; color: #059669; font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 5px; font-family: inherit; cursor: pointer; }
+.btn-link { background: none; border: none; color: #9CA3AF; font-size: 11px; cursor: pointer; font-family: inherit; padding: 0; }
+.btn-link:hover { color: #DC2626; }
+
+.summary-pill { font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 20px; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+.badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+.badge-overdue { background: #DC2626; color: white; animation: pulse 2s infinite; }
+.badge-chase   { background: #92400E; color: #FCD34D; }
+.badge-action  { background: #DC2626; color: white; }
+.hdr-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.hdr-overdue  { background: #DC2626; color: white; animation: pulse 2s infinite; }
+.hdr-rejected { background: #FEF3C7; color: #92400E; }
+
+.add-form { background: white; border: 1.5px solid #2563EB; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+.field-label { font-size: 10px; color: #6B7280; margin-bottom: 4px; font-weight: 600; }
+input[type=text], input[type=number], input[type=date], select, textarea {
+  font-family: inherit; background: #F8F9FC; border: 1px solid #D1D5E0;
+  border-radius: 6px; color: #1A1D2E; padding: 8px 10px; font-size: 12px; outline: none;
+}
+input[type=text]:focus, input[type=number]:focus, input[type=date]:focus,
+select:focus, textarea:focus { border-color: #2563EB; }
+input[type=text], input[type=number], input[type=date], select { width: 100%; }
+
+.ts { font-size: 10px; color: #9CA3AF; }
+.ts-green { font-size: 10px; color: #059669; }
+
+.ov-group { background: white; border: 1px solid #E2E5F0; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+.ov-header{ padding: 10px 16px; border-bottom: 1px solid #F0F2F8; display: flex; align-items: center; gap: 8px; }
+.ov-row   { padding: 9px 16px; border-bottom: 1px solid #F8F9FC; display: flex; justify-content: space-between; align-items: center; }
+.ov-row:last-child { border-bottom: none; }
+
+@keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:0.5} }
+@keyframes slideIn { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ═════════════════════════════════════════════
+   DATA & CONSTANTS
+═════════════════════════════════════════════ */
+const HOMES = [
+  "AC Scenic Lodge","Arcare Kanwal","Bill Crawford","Boandik Crouch St","Boandik St. Mary's",
+  "Bolton Clarke Caboolture","Calvary Coffs Harbour","Churches of Christ Toowoomba",
+  "Churches of Christ Warwick","Eureka Village","Geoffrey Cutter","GH Stawell",
+  "Hammondcare Caulfield","Hammondcare Horsley","Hardi Vale Manly Vale","Illaroo",
+  "IRT Crown Gardens","IRT Culburra","IRT Dalmeny","IRT Greenwell Gardens","IRT SGB",
+  "IRT Unanderra","Jack Lonsdale Lodge","Kanadah Mudgee","Murravale",
+  "Opal Cameron Park","Opal Coffs Harbour","Opal Denhams","Opal Dubbo","Opal Gawler",
+  "Opal Glen Osmond","Opal Kanwal","Opal Katoomba","Opal Killarney Vale",
+  "Opal Lakes Entrances","Opal Mudgee","Opal Nambour","Opal Narrandera","Opal Orange",
+  "Opal Shoalhaven","Opal Tingira Hills","Opal Wallarah","RBD Tin Can Bay","Regis Tiwi",
+  "Resthaven Mt Gambier","Roseneath","RSL Austral","RSL Condobolin",
+  "RSL Kandos","RSL Merimbula","Salvos Merewether","Talbot Place","Uniting Osborne",
+  "VMCH Torquay","Warrigal Bundanoon","Warrigal Goulburn","WB Messer",
+  "Whiddon Mudgee","Wintringham Ron Conn"
+];
+
+const BATCH_STAGE = {
+  awaiting: { label:"Awaiting Medicare Response", color:"#D97706", bg:"#FFFBEB" },
+};
+const STORAGE_KEY = "billing_tracker_v11";
+
+const REJ_TYPES = [
+  { key:"code-error",     label:"Code error" },
+  { key:"gp-np-conflict", label:"GP + NP conflict" },
+  { key:"nurse-confirm",  label:"Nurse confirmation required" },
+  { key:"other",          label:"Other" },
+];
+
+/* ═════════════════════════════════════════════
+   HELPERS
+═════════════════════════════════════════════ */
+let _uid = 1000;
+function uid() { return 'id' + (++_uid) + '_' + Math.floor(Math.random()*9999); }
+function today() { return new Date().toISOString().split("T")[0]; }
+
+function hoursAgo(ts) {
+  if (!ts) return null;
+  const h = Math.floor((Date.now()-new Date(ts).getTime())/3600000);
+  if (h<1) return "just now";
+  if (h<24) return h+"h ago";
+  return Math.floor(h/24)+"d "+h%24+"h ago";
+}
+function fmtTs(ts) {
+  if (!ts) return "";
+  return new Date(ts).toLocaleString("en-AU",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+}
+function esc(s) {
+  return String(s||"")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function batchCounts(b) {
+  const items = b.items||[];
+  return {
+    confirmed: items.filter(i=>i.status==="confirmed"&&!i.cleared).length,
+    awaiting:  items.filter(i=>i.status==="awaiting" &&!i.cleared).length,
+    rejected:  items.filter(i=>i.status==="rejected" &&!i.cleared).length,
+    cleared:   items.filter(i=>i.cleared).length,
+    total:     items.length,
+  };
+}
+function hasRejected(b)  { return (b.items||[]).some(i=>i.status==="rejected"&&!i.cleared); }
+function isOverdue(b)    { return b.outcome!=="confirmed"&&b.submittedAt&&Date.now()-new Date(b.submittedAt).getTime()>48*3600000; }
+function isStale(b)      { return b.outcome!=="confirmed"&&b.submittedAt&&Date.now()-new Date(b.submittedAt).getTime()>24*3600000&&!isOverdue(b); }
+
+/* ═════════════════════════════════════════════
+   INITIAL DATA
+═════════════════════════════════════════════ */
+function mkItem(label, status, hrsAgo) {
+  const now = Date.now();
+  return {
+    id: uid(),
+    label: label,
+    status: status||"awaiting",
+    cleared: false,
+    resolution: "",
+    rejectionHistory: [],
+    rejectionType: null,
+    rejectionTypeOther: "",
+    chases: [],
+    submittedAt: hrsAgo ? new Date(now-hrsAgo*3600000).toISOString() : null,
+    confirmedAt: status==="confirmed" ? new Date(now-hrsAgo*3600000+1800000).toISOString() : null,
+  };
+}
+
+function mkRejectedItem(label) {
+  return {
+    id:uid(), label, status:"rejected",
+    cleared:false, resolution:"",
+    invoiceNum:"", noInvoiceYet:false,
+    rejectionHistory:[], rejectionType:null, rejectionTypeOther:"", chases:[],
+    rejectedAt:new Date().toISOString(), submittedAt:null, confirmedAt:null, escalatedAt:null,
+  };
+}
+
+function makeDemo() {
+  return [
+    {
+      id:uid(), home:"Sunrise Lodge", date:today(), stage:"awaiting",
+      notes:"", totalCount:10, outcome:"has_rejections",
+      createdAt:new Date(Date.now()-32*3600000).toISOString(),
+      submittedAt:new Date(Date.now()-30*3600000).toISOString(),
+      confirmedAt:null,
+      checks:[new Date(Date.now()-7*3600000).toISOString(), new Date(Date.now()-0.5*3600000).toISOString()],
+      items:[
+        { id:uid(), label:"Claim 008", status:"rejected", cleared:false, resolution:"",
+          rejectionHistory:[], rejectionType:null, rejectionTypeOther:"", chases:[],
+          rejectedAt:new Date(Date.now()-2*3600000).toISOString(), submittedAt:null, confirmedAt:null },
+        { id:uid(), label:"Claim 010", status:"rejected", cleared:false, resolution:"",
+          rejectionHistory:[], rejectionType:"code-error", rejectionTypeOther:"", chases:[],
+          rejectedAt:new Date(Date.now()-2*3600000).toISOString(), submittedAt:null, confirmedAt:null },
+      ],
+    },
+    {
+      id:uid(), home:"Greenfield Manor", date:today(), stage:"awaiting",
+      notes:"", totalCount:6, outcome:null,
+      createdAt:new Date(Date.now()-3*3600000).toISOString(),
+      submittedAt:new Date(Date.now()-3*3600000).toISOString(),
+      confirmedAt:null, checks:[], items:[],
+    },
+    {
+      id:uid(), home:"Oakwood Care", date:today(), stage:"awaiting",
+      notes:"", totalCount:4, outcome:"confirmed",
+      createdAt:new Date(Date.now()-52*3600000).toISOString(),
+      submittedAt:new Date(Date.now()-52*3600000).toISOString(),
+      confirmedAt:new Date(Date.now()-1*3600000).toISOString(),
+      checks:[new Date(Date.now()-1*3600000).toISOString()], items:[],
+    },
+    {
+      id:uid(), home:"Riverside House", date:today(), stage:"awaiting",
+      notes:"", totalCount:3, outcome:null,
+      createdAt:new Date(Date.now()-1*3600000).toISOString(),
+      submittedAt:new Date(Date.now()-1*3600000).toISOString(),
+      confirmedAt:null, checks:[], items:[],
+    },
+  ];
+}
+
+/* ═════════════════════════════════════════════
+   STATE
+═════════════════════════════════════════════ */
+function purgeExpired() {
+  const cutoff = Date.now() - 24*3600000;
+  S.deleted = (S.deleted||[]).filter(b => new Date(b.deletedAt).getTime() > cutoff);
+}
+function loadState() {
+  try {
+    const r = localStorage.getItem(STORAGE_KEY);
+    if (r) {
+      const p = JSON.parse(r);
+      if (Array.isArray(p)) return { batches:p, deleted:[] };
+      return { batches:p.batches||[], deleted:p.deleted||[] };
+    }
+  } catch(e) {}
+  return { batches:makeDemo(), deleted:[] };
+}
+function saveState() {
+  purgeExpired();
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ batches:S.batches, deleted:S.deleted })); } catch(e) {}
+}
+
+const _init = loadState();
+const S = {
+  batches:   _init.batches,
+  deleted:   _init.deleted,
+  showAdd:   false,
+  filter:    "all",
+  openBatch: null,
+  openStat:  null,
+  tab:       "tracker",
+  newBatch:  { home:"", date:today(), count:1 },
+};
+
+/* ═════════════════════════════════════════════
+   MUTATIONS
+═════════════════════════════════════════════ */
+function mutate(fn) { fn(); saveState(); render(); }
+
+function updateBatch(id, fn) {
+  S.batches = S.batches.map(b => b.id===id ? fn(b) : b);
+}
+function updateItem(bid, iid, fn) {
+  updateBatch(bid, b => ({ ...b, items: b.items.map(i => i.id===iid ? fn(i) : i) }));
+}
+
+function doConfirmItem(bid, iid) {
+  mutate(() => updateItem(bid, iid, i => ({
+    ...i, status:"confirmed", confirmedAt:new Date().toISOString()
+  })));
+}
+function doRejectItem(bid, iid) {
+  mutate(() => updateItem(bid, iid, i => ({ ...i, status:"rejected" })));
+}
+function doClearItem(bid, iid) {
+  mutate(() => updateItem(bid, iid, i => ({ ...i, cleared:true })));
+}
+function doClearAllConfirmed(bid) {
+  mutate(() => updateBatch(bid, b => ({
+    ...b, items: b.items.map(i => i.status==="confirmed" ? {...i, cleared:true} : i)
+  })));
+}
+function doSetRejectionType(bid, iid, rtype) {
+  mutate(() => updateItem(bid, iid, i => ({
+    ...i,
+    rejectionType: rtype,
+    // Preserve any chases already logged when switching type
+    chases: i.chases||[],
+  })));
+}
+function doEscalateItem(bid, iid) {
+  mutate(() => updateItem(bid, iid, i => ({
+    ...i, escalatedAt: new Date().toISOString()
+  })));
+}
+function doLogChase(bid, iid) {
+  const descField = document.getElementById('chase_desc_'+iid);
+  const desc = descField ? descField.value.trim() : "";
+  mutate(() => updateItem(bid, iid, i => ({
+    ...i, chases: [...(i.chases||[]), { sentAt: new Date().toISOString(), desc }]
+  })));
+}
+function doSaveInvoice(bid, iid) {
+  const labelField = document.getElementById('rej_label_'+iid);
+  const val = labelField ? labelField.value.trim() : "";
+  if (!val) return;
+  mutate(() => updateItem(bid, iid, i => ({ ...i, invoiceNum: val })));
+}
+function doToggleNoInvoice(bid, iid) {
+  mutate(() => updateItem(bid, iid, i => ({ ...i, noInvoiceYet: !i.noInvoiceYet, invoiceNum: !i.noInvoiceYet ? "No Invoice Yet" : i.invoiceNum })));
+}
+function doResubmitItem(bid, iid) {
+  const batch = S.batches.find(b=>b.id===bid);
+  const item  = batch ? batch.items.find(i=>i.id===iid) : null;
+  if (!item) return;
+
+  // Hard gate: rejection type must be selected
+  if (!item.rejectionType) return;
+
+  let rejTypeLabel = (REJ_TYPES.find(r=>r.key===item.rejectionType)||{label:item.rejectionType}).label;
+  if (item.rejectionType === "other") {
+    const otherField = document.getElementById('rej_type_other_'+iid);
+    const otherText  = otherField ? otherField.value.trim() : "";
+    if (!otherText) { if(otherField){otherField.style.borderColor="#DC2626";otherField.focus();} return; }
+    rejTypeLabel = "Other: " + otherText;
+  }
+
+  // Hard gate: resolution note required
+  const ta = document.getElementById('rej_'+iid);
+  const reason = ta ? ta.value.trim() : "";
+  if (!reason) { if(ta){ta.style.borderColor="#DC2626";ta.focus();} return; }
+
+  const labelField = document.getElementById('rej_label_'+iid);
+  const newInvoice = labelField ? labelField.value.trim() : "";
+
+  mutate(() => updateItem(bid, iid, i => ({
+    ...i,
+    label: newInvoice || i.invoiceNum || i.label,
+    invoiceNum: newInvoice || i.invoiceNum,
+    status:"awaiting",
+    rejectionType: null,
+    rejectionTypeOther: "",
+    chases: [],
+    escalatedAt: null,
+    rejectionHistory: [...(i.rejectionHistory||[]), {
+      rejectedAt: new Date().toISOString(),
+      reason,
+      rejectionType: rejTypeLabel,
+      chases: i.chases||[],
+    }],
+    submittedAt: new Date().toISOString(),
+    confirmedAt: null,
+  })));
+}
+function doCheckBatch(bid) {
+  mutate(() => updateBatch(bid, b => ({
+    ...b, checks: [...(b.checks||[]), new Date().toISOString()]
+  })));
+}
+function doConfirmAll(bid) {
+  mutate(() => updateBatch(bid, b => ({
+    ...b, outcome:"confirmed", confirmedAt:new Date().toISOString()
+  })));
+}
+function doAddRejectedItem(bid) {
+  mutate(() => updateBatch(bid, b => {
+    const rejCount = (b.items||[]).length + 1;
+    const label = "Claim " + String(rejCount).padStart(3,"0");
+    return {
+      ...b,
+      outcome: "has_rejections",
+      items: [...(b.items||[]), mkRejectedItem(label)],
+    };
+  }));
+}
+function doDeleteBatch(bid) {
+  mutate(() => {
+    const batch = S.batches.find(b=>b.id===bid);
+    if (batch) S.deleted = [...(S.deleted||[]), {...batch, deletedAt:new Date().toISOString()}];
+    S.batches = S.batches.filter(b=>b.id!==bid);
+    if (S.openBatch===bid) S.openBatch=null;
+  });
+}
+function doRestoreBatch(bid) {
+  mutate(() => {
+    const batch = S.deleted.find(b=>b.id===bid);
+    if (batch) {
+      const {deletedAt, ...rest} = batch;
+      S.batches = [...S.batches, rest];
+      S.deleted = S.deleted.filter(b=>b.id!==bid);
+    }
+  });
+}
+function doPermDeleteBatch(bid) {
+  mutate(() => { S.deleted = S.deleted.filter(b=>b.id!==bid); });
+}
+function doAddBatch() {
+  const {home,date,count} = S.newBatch;
+  if (!home||!count||count<1) return;
+  const n = parseInt(count);
+  const now = new Date().toISOString();
+  mutate(() => {
+    S.batches.push({
+      id:uid(), home, date, stage:"awaiting",
+      notes:"", submittedAt:now, createdAt:now,
+      totalCount:n, outcome:null, confirmedAt:null,
+      checks:[], items:[],
+    });
+    S.newBatch={home:"",date:today(),count:1};
+    S.showAdd=false;
+  });
+}
+
+/* ═════════════════════════════════════════════
+   RENDER HELPERS
+═════════════════════════════════════════════ */
+function renderStepBar(batch) {
+  const done = STEP_DONE[batch.stage]||0;
+  return '<div class="step-bar">'+STEPS.map((label,i)=>{
+    const isDone=i<done, isLast=i===STEPS.length-1;
+    const dotBg=isDone?"#059669":"#E2E5F0";
+    const lblClr=isDone?"#059669":"#9CA3AF";
+    const inner=isDone?'<span style="color:white;font-size:10px;">&#10003;</span>'
+      :'<span style="color:#9CA3AF;font-size:9px;font-weight:700;">'+(i+1)+'</span>';
+    return '<div class="step-item">'
+      +'<div class="step-dot-wrap">'
+      +'<div class="step-dot" style="background:'+dotBg+';">'+inner+'</div>'
+      +'<div class="step-lbl" style="color:'+lblClr+';">'+esc(label)+'</div>'
+      +'</div>'
+      +(!isLast?'<div class="step-line" style="background:'+(isDone?"#86EFAC":"#E2E5F0")+';"></div>':"")
+      +'</div>';
+  }).join("")+'</div>';
+}
+
+function renderBatchAction(batch) {
+  const bid = batch.id;
+  const total = batch.totalCount || batch.items.length;
+
+  // ── Awaiting Medicare: batch-level outcome ──
+  if (batch.stage==="awaiting") {
+    // All confirmed — done
+    if (batch.outcome==="confirmed") return `
+      <div class="action-zone az-green">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:22px;color:#059669;">&#10003;</span>
+          <div>
+            <div style="font-weight:700;font-size:12px;color:#059669;">All ${total} claims confirmed by Medicare</div>
+            <div style="font-size:11px;color:#6B7280;margin-top:2px;">Confirmed ${hoursAgo(batch.confirmedAt)} &mdash; batch complete</div>
+          </div>
+        </div>
+      </div>`;
+
+    // Has rejections — summary + add more
+    if (batch.outcome==="has_rejections") {
+      const c = batchCounts(batch);
+      const activeRej = c.rejected;
+      const resubmitted = c.awaiting;
+      const resolved = c.confirmed + c.cleared;
+      const nonRejected = total - (batch.items||[]).length;
+      const allDone = activeRej===0 && resubmitted===0;
+      if (allDone) return `
+        <div class="action-zone az-green">
+          <div style="font-weight:700;font-size:12px;color:#059669;margin-bottom:4px;">&#10003; All rejections resolved</div>
+          <div style="font-size:11px;color:#6B7280;">${nonRejected} claims confirmed &middot; ${resolved} rejection${resolved!==1?"s":""} resolved</div>
+        </div>`;
+      return `
+        <div class="action-zone az-amber">
+          <div class="action-prompt" style="margin-bottom:5px;">Tracking pending items for this batch</div>
+          <div style="font-size:11px;color:#6B7280;margin-bottom:10px;">
+            ${nonRejected>0?'<span style="color:#059669;font-weight:600;">'+nonRejected+' confirmed</span> &nbsp;&middot;&nbsp;':""
+            }${activeRej>0?'<span style="color:#DC2626;font-weight:600;">'+activeRej+' pending resolution</span>':""
+            }${resubmitted>0?' &nbsp;&middot;&nbsp;<span style="color:#D97706;font-weight:600;"> '+resubmitted+' resubmitted — awaiting</span>':""
+            }${resolved>0?' &nbsp;&middot;&nbsp; '+resolved+' resolved':""}
+          </div>
+          <button class="btn-ghost" data-action="add-rejected-item" data-bid="${esc(bid)}">+ Log another pending item</button>
+        </div>`;
+    }
+
+    // No outcome yet — ask
+    return `
+      <div class="action-zone az-amber">
+        <div class="action-prompt">Medicare responded to this batch?</div>
+        <div class="action-hint" style="margin-bottom:10px;">${total} claim${total!==1?"s":""} submitted — log the Medicare outcome below.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-confirm" style="font-size:12px;padding:8px 18px;"
+            data-action="confirm-all" data-bid="${esc(bid)}">&#10003; All confirmed</button>
+          <button class="btn" style="background:#DC2626;color:white;font-size:12px;padding:8px 18px;border-radius:7px;border:none;font-family:inherit;cursor:pointer;font-weight:600;"
+            data-action="add-rejected-item" data-bid="${esc(bid)}">&#10007; Log Pending Invoice</button>
+        </div>
+      </div>`;
+  }
+  return "";
+}
+
+function renderItem(batch, item) {
+  const bid = batch.id;
+  const iid = item.id;
+  const inAwaitingBatch = batch.stage==="awaiting";
+
+  let bg,border;
+  if (item.cleared)                   { bg="#F8F8FA"; border="#E2E5F0"; }
+  else if (item.status==="confirmed") { bg="#F0FDF4"; border="#BBF7D0"; }
+  else if (item.status==="rejected")  { bg="#FFF8F8"; border="#FCA5A5"; }
+  else                                { bg="#FFFBEB"; border="#FDE68A"; }
+
+  const pillMap={awaiting:["#D97706","#FFFBEB","Awaiting"],confirmed:["#059669","#ECFDF5","Confirmed &#10003;"],rejected:["#DC2626","#FEF2F2","Rejected"]};
+  const [pClr,pBg,pLbl] = pillMap[item.status]||["#6B7280","#F3F4F6","&ndash;"];
+
+  const rh=(item.rejectionHistory||[]).length;
+  const rhBadge=rh>0?'<span style="font-size:9px;background:#FEE2E2;color:#DC2626;padding:1px 5px;border-radius:4px;font-weight:600;margin-left:4px;">'+rh+'&times;&#10007;</span>':"";
+
+  // Status column — always show "CURRENT STAGE" label when in awaiting batch
+  const showStageLabel = inAwaitingBatch && !item.cleared;
+  const stageLabel = showStageLabel
+    ? '<div style="font-size:9px;color:#9CA3AF;font-weight:600;letter-spacing:0.3px;margin-bottom:3px;">CURRENT STAGE</div>' : "";
+  const statusCol = `<div>${stageLabel}<span style="background:${pBg};color:${pClr};font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;">${pLbl}</span>${item.confirmedAt?'<span style="font-size:10px;color:#9CA3AF;margin-left:6px;">'+hoursAgo(item.confirmedAt)+'</span>':""}</div>`;
+
+  // Actions column — for awaiting items, show "MEDICARE RESPONDED?" prompt
+  let actionsLabel = "";
+  let actions = "";
+  if (item.cleared) {
+    actions = '<span style="font-size:10px;color:#9CA3AF;font-style:italic;">cleared</span>';
+  } else if (!inAwaitingBatch) {
+    actions = '<span style="font-size:10px;color:#C4C9D4;">&mdash;</span>';
+  } else if (item.status==="awaiting") {
+    actionsLabel = '<div style="font-size:9px;color:#6B7280;font-weight:600;letter-spacing:0.3px;margin-bottom:4px;text-align:right;">MEDICARE RESPONDED?</div>';
+    actions = `<button class="btn-sm btn-confirm" data-action="confirm-item" data-bid="${esc(bid)}" data-iid="${esc(iid)}">&#10003; Confirmed</button>
+               <button class="btn-sm btn-reject"  data-action="reject-item"  data-bid="${esc(bid)}" data-iid="${esc(iid)}">&#10007; Rejected</button>`;
+  } else if (item.status==="confirmed") {
+    actions = `<button class="btn-sm btn-clear" data-action="clear-item" data-bid="${esc(bid)}" data-iid="${esc(iid)}">Clear</button>`;
+  } else if (item.status==="rejected") {
+    // No archive — must complete the form below
+    actions = '<span style="font-size:10px;color:#DC2626;font-style:italic;">action required &#8595;</span>';
+  }
+
+  const showRejForm = item.status==="rejected" && inAwaitingBatch && !item.cleared;
+
+  // Build rejection form
+  let rejForm = "";
+  if (showRejForm) {
+    const chases   = item.chases || [];
+    const isEscalated = chases.length > 0 &&
+      (Date.now() - new Date(chases[0].sentAt).getTime()) > 7*24*3600000;
+
+    // Rejection type pills (fully inline styled to avoid btn-sm border:none conflict)
+    const rejTypePills = REJ_TYPES.map(rt => {
+      const sel = item.rejectionType === rt.key;
+      return `<button style="font-size:10px;font-weight:700;padding:4px 10px;border-radius:5px;font-family:inherit;cursor:pointer;${sel?"background:#DC2626;color:white;border:1.5px solid #DC2626;":"background:white;color:#DC2626;border:1.5px solid #FCA5A5;"}"
+        data-action="set-rejection-type" data-bid="${esc(bid)}" data-iid="${esc(iid)}" data-rtype="${esc(rt.key)}">${esc(rt.label)}</button>`;
+    }).join("");
+
+    const otherField = item.rejectionType === "other" ? `
+      <input type="text" id="rej_type_other_${esc(iid)}"
+        placeholder="Describe rejection reason..."
+        style="margin-top:6px;width:100%;font-size:11px;border:1.5px solid #FCA5A5;border-radius:6px;background:white;padding:6px 10px;color:#1A1D2E;">` : "";
+
+    // Chase section — shown for all rejection types
+    let chaseSection = "";
+    if (item.rejectionType) {
+      const chaseRows = chases.map((ch,idx) =>
+        `<div style="font-size:10px;color:#92400E;padding:4px 0;border-bottom:1px solid #FDE68A;">
+          <span style="font-weight:700;">Chase ${idx+1}</span> &mdash;
+          <span style="color:#6B7280;">${fmtTs(ch.sentAt)}</span>
+          ${ch.desc?'<span style="color:#92400E;font-style:italic;"> &mdash; '+esc(ch.desc)+'</span>':""}
+         </div>`
+      ).join("");
+      let chaseBtn = "";
+      if (chases.length < 3) {
+        chaseBtn = `
+          <div style="margin-top:6px;">
+            <input type="text" id="chase_desc_${esc(iid)}" placeholder="e.g. Email sent, Nurse following up…"
+              style="width:100%;font-size:11px;border:1px solid #FCD34D;border-radius:5px;background:white;padding:5px 8px;color:#1A1D2E;margin-bottom:5px;">
+            <button style="font-size:10px;font-weight:700;padding:4px 10px;border-radius:5px;font-family:inherit;cursor:pointer;background:#D97706;color:white;border:none;"
+              data-action="log-chase" data-bid="${esc(bid)}" data-iid="${esc(iid)}">+ Log Chase ${chases.length+1}</button>
+          </div>`;
+      } else if (item.escalatedAt) {
+        chaseBtn = `<div style="margin-top:6px;background:#FEE2E2;border:1px solid #FCA5A5;border-radius:5px;padding:6px 10px;display:flex;align-items:center;gap:6px;">
+          <span style="font-size:13px;">&#9650;</span>
+          <div>
+            <div style="font-size:10px;font-weight:700;color:#DC2626;">Escalated to supervisor</div>
+            <div style="font-size:9px;color:#92400E;margin-top:1px;">${fmtTs(item.escalatedAt)}</div>
+          </div>
+        </div>`;
+      } else {
+        chaseBtn = `<button style="font-size:10px;font-weight:700;padding:6px 12px;border-radius:5px;font-family:inherit;cursor:pointer;background:#DC2626;color:white;border:none;margin-top:6px;display:flex;align-items:center;gap:5px;"
+            data-action="escalate-item" data-bid="${esc(bid)}" data-iid="${esc(iid)}">&#9650; Escalate to Supervisor</button>`;
+      }
+      chaseSection = `
+        <div style="background:#FFFBEB;border:1px solid #FCD34D;border-radius:6px;padding:8px 10px;margin-top:8px;margin-bottom:2px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+            <span style="font-size:10px;color:#92400E;font-weight:700;">NURSE / CASE CONFIRMATION CHASE</span>
+            ${chases.length>0?'<span style="font-size:9px;color:#92400E;font-weight:500;">'+chases.length+' sent</span>':""}
+            ${isEscalated?'<span style="font-size:9px;background:#DC2626;color:white;padding:2px 6px;border-radius:4px;font-weight:700;animation:pulse 2s infinite;">ESCALATE</span>':""}
+          </div>
+          ${chases.length===0?'<div style="font-size:10px;color:#9CA3AF;font-style:italic;">No chases logged yet</div>':''}
+          ${chaseRows}
+          ${chaseBtn}
+        </div>`;
+    }
+
+    const prevHist = (item.rejectionHistory||[]).length>0
+      ? '<div style="margin-top:6px;font-size:10px;color:#9CA3AF;border-top:1px solid #FCA5A5;padding-top:6px;">Previous: '
+        + item.rejectionHistory.map((h,i)=>'#'+(i+1)+(h.rejectionType?' ['+esc(h.rejectionType)+']':'')+' &mdash; '+esc(h.reason.substring(0,50))+(h.reason.length>50?"&hellip;":"")).join(" &middot; ")
+        + '</div>' : "";
+
+    // Gate: resubmit disabled until type selected
+    const typeSelected = !!item.rejectionType;
+    const resubmitStyle = typeSelected ? '' : 'opacity:0.4;cursor:not-allowed;pointer-events:none;';
+
+    rejForm = `
+      <div style="padding:12px;background:#FFF0F0;border:1px solid #FCA5A5;border-top:none;border-radius:0 0 7px 7px;margin-top:-4px;">
+        <div style="font-size:10px;color:#D97706;font-weight:700;background:#FFFBEB;padding:5px 8px;border-radius:5px;margin-bottom:10px;">
+          &#9888; Pending resolution &mdash; log details below. Resubmit once resolved.
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <div style="font-size:10px;color:#92400E;font-weight:700;margin-bottom:5px;">INVOICE NUMBER (from ZedMed):</div>
+          ${item.noInvoiceYet
+            ? `<div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:11px;font-style:italic;color:#D97706;font-weight:600;">No Invoice Yet</span>
+                <button style="font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;font-family:inherit;cursor:pointer;background:white;color:#6B7280;border:1px solid #D1D5E0;"
+                  data-action="toggle-no-invoice" data-bid="${esc(bid)}" data-iid="${esc(iid)}">Change</button>
+               </div>`
+            : `<div style="display:flex;gap:6px;align-items:center;">
+                <input type="text" id="rej_label_${esc(iid)}" value="${esc(item.invoiceNum||"")}"
+                  placeholder="INV#"
+                  style="flex:1;font-size:12px;font-weight:600;border:1.5px solid #FCA5A5;border-radius:6px;background:white;padding:7px 10px;color:#1A1D2E;">
+                <button style="font-size:10px;font-weight:700;padding:7px 12px;border-radius:6px;font-family:inherit;cursor:pointer;background:#2563EB;color:white;border:none;white-space:nowrap;"
+                  data-action="save-invoice" data-bid="${esc(bid)}" data-iid="${esc(iid)}">Save</button>
+                <button style="font-size:9px;font-weight:600;padding:4px 8px;border-radius:5px;font-family:inherit;cursor:pointer;background:white;color:#D97706;border:1px solid #FCD34D;white-space:nowrap;"
+                  data-action="toggle-no-invoice" data-bid="${esc(bid)}" data-iid="${esc(iid)}">No Invoice Yet</button>
+               </div>`
+          }
+          ${item.invoiceNum&&!item.noInvoiceYet?`<div style="font-size:10px;color:#059669;margin-top:3px;font-weight:600;">&#10003; Saved: ${esc(item.invoiceNum)}</div>`:""}
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <div style="font-size:10px;color:#92400E;font-weight:700;margin-bottom:5px;">STEP 1 &mdash; Rejection type:</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">${rejTypePills}</div>
+          ${otherField}
+        </div>
+
+        ${chaseSection}
+
+        <div style="margin-top:10px;">
+          <div style="font-size:10px;color:#92400E;font-weight:700;margin-bottom:5px;">STEP 2 &mdash; Resolution note (required to resubmit):</div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <textarea id="rej_${esc(iid)}" rows="2"
+              placeholder="e.g. Incorrect provider number &mdash; correcting and resubmitting&hellip;"
+              style="flex:1;font-size:11px;background:white;border:1.5px solid #FCA5A5;border-radius:6px;color:#1A1D2E;padding:7px 10px;resize:none;line-height:1.4;"></textarea>
+            <button class="btn-sm btn-resubmit" data-action="resubmit-item" data-bid="${esc(bid)}" data-iid="${esc(iid)}"
+              style="${resubmitStyle}">Log &amp; Resubmit &rarr;</button>
+          </div>
+          ${prevHist}
+        </div>
+      </div>`;
+  }
+
+  const alignItems = (item.status==="awaiting" && inAwaitingBatch && !item.cleared) ? "flex-start" : "center";
+  return `<div style="margin-bottom:${showRejForm?8:4}px;">
+    <div style="display:grid;grid-template-columns:140px 1fr auto;gap:10px;align-items:${alignItems};padding:9px 12px;border-radius:${showRejForm?"7px 7px 0 0":"7px"};border:1px solid ${border};background:${bg};${item.cleared?"opacity:0.5;":""}">
+      <div style="display:flex;align-items:center;">${'<span style="font-size:12px;font-weight:600;color:#374151;">'+esc(item.label)+"</span>"}${rhBadge}</div>
+      ${statusCol}
+      <div style="display:flex;flex-direction:column;align-items:flex-end;">${actionsLabel}<div style="display:flex;gap:6px;align-items:center;">${actions}</div></div>
+    </div>
+    ${rejForm}
+  </div>`;
+}
+
+function renderSummaryPill(batch) {
+  const st = BATCH_STAGE[batch.stage];
+  if (batch.stage!=="awaiting") {
+    const total = batch.totalCount||0;
+    return `<div class="summary-pill" style="background:${st.bg};color:${st.color};">${esc(st.label)}${total?' &middot; '+total+' claims':""}</div>`;
+  }
+  if (batch.outcome==="confirmed") return `<div class="summary-pill" style="background:#ECFDF5;color:#059669;">All ${batch.totalCount||""} confirmed &#10003;</div>`;
+  if (batch.outcome==="has_rejections") {
+    const c = batchCounts(batch);
+    const parts=[];
+    if(c.rejected>0)parts.push('<span style="color:#DC2626;font-weight:700;">'+c.rejected+'&#10007;</span>');
+    if(c.awaiting >0)parts.push('<span style="color:#D97706;font-weight:700;">'+c.awaiting+'&#9203;</span>');
+    if(c.confirmed>0)parts.push('<span style="color:#059669;font-weight:700;">'+c.confirmed+'&#10003;</span>');
+    return `<div class="summary-pill" style="background:#FEF2F2;">${parts.join(" ")}</div>`;
+  }
+  // No outcome yet — awaiting
+  const total = batch.totalCount||0;
+  return `<div class="summary-pill" style="background:#FFFBEB;color:#D97706;">Awaiting &mdash; ${total} claim${total!==1?"s":""}</div>`;
+}
+
+function renderBatch(batch) {
+  const over  = isOverdue(batch);
+  const stale = isStale(batch);
+  const rej   = hasRejected(batch);
+  const open  = S.openBatch===batch.id;
+  const c     = batchCounts(batch);
+  const confirmed = batch.outcome==="confirmed";
+  const borderClr = over||rej?"#DC2626":stale?"#D97706":confirmed?"#86EFAC":"#E2E5F0";
+
+  const total = batch.totalCount || batch.items.length;
+  const checks = batch.checks||[];
+  const lastCheck = checks.length>0 ? checks[checks.length-1] : null;
+  const checkedToday = lastCheck && new Date(lastCheck).toDateString()===new Date().toDateString();
+  const notCheckedWarning = !confirmed && !checkedToday;
+
+  const sub=[total+" claims","submitted to Medicare "+hoursAgo(batch.submittedAt),
+    lastCheck?"checked "+hoursAgo(lastCheck):null].filter(Boolean).join(" &middot; ");
+
+  // Items section: only shown when rejections have been logged
+  const showItems = batch.outcome==="has_rejections" && (batch.items||[]).length>0;
+  const confirmedItems = (batch.items||[]).filter(i=>i.status==="confirmed"&&!i.cleared);
+  const showClearAll = showItems && confirmedItems.length>=2;
+
+  let body="";
+  if (open) {
+    body=`<div class="batch-body">
+      ${renderBatchAction(batch)}
+      ${showItems?`<div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-size:10px;font-weight:700;color:#6B7280;letter-spacing:0.4px;">
+            PENDING ITEMS (${batch.items.length}${c.cleared>0?" &middot; "+c.cleared+" resolved":""})</div>
+          <div style="display:flex;gap:8px;">
+            ${showClearAll?`<button class="btn-ghost-green" data-action="clear-all" data-bid="${esc(batch.id)}">Clear resolved (${confirmedItems.length})</button>`:""}
+          </div>
+        </div>
+        <div>${batch.items.map(item=>renderItem(batch,item)).join("")}</div>
+      </div>`:""}
+      <div style="border-top:1px solid #F0F2F8;padding-top:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="display:flex;gap:14px;flex-wrap:wrap;">
+            ${batch.createdAt?'<span class="ts">Created: '+fmtTs(batch.createdAt)+'</span>':""}
+            ${batch.submittedAt?'<span class="ts">Submitted: '+fmtTs(batch.submittedAt)+'</span>':""}
+            ${batch.confirmedAt?'<span class="ts-green">Confirmed: '+fmtTs(batch.confirmedAt)+'</span>':""}
+          </div>
+          <button class="btn-link" data-action="delete-batch" data-bid="${esc(batch.id)}">Delete batch</button>
+        </div>
+        ${!confirmed?`<div style="display:flex;align-items:center;gap:12px;background:#F8F9FC;border:1px solid #E2E5F0;border-radius:7px;padding:8px 12px;">
+          <button class="btn-ghost" style="font-size:11px;padding:5px 14px;white-space:nowrap;"
+            data-action="check-batch" data-bid="${esc(batch.id)}">&#10003; Mark as Checked</button>
+          <div style="flex:1;min-width:0;">
+            ${lastCheck
+              ? `<div style="font-size:10px;color:#374151;font-weight:600;">Last checked: ${fmtTs(lastCheck)}</div>`
+              : `<div style="font-size:10px;color:#D97706;font-weight:600;">Not yet checked today</div>`}
+            ${checks.length>1
+              ? `<div style="font-size:9px;color:#9CA3AF;margin-top:2px;">${checks.slice(-4,-1).reverse().map(c=>'&bull; '+fmtTs(c)).join(' &nbsp;')}</div>`
+              : ""}
+          </div>
+        </div>`:""}
+      </div>
+    </div>`;
+  }
+
+  return `<div class="card" style="border-color:${borderClr};">
+    <div class="batch-header" data-action="toggle-batch" data-bid="${esc(batch.id)}">
+      <div>
+        <div style="display:flex;align-items:center;gap:7px;">
+          <span style="font-size:13px;font-weight:600;">${esc(batch.home)}</span>
+          ${over?'<span class="badge badge-overdue">OVERDUE</span>':""}
+          ${stale?'<span class="badge badge-chase">CHASE</span>':""}
+          ${rej&&!over?'<span class="badge badge-action">ACTION NEEDED</span>':""}
+          ${confirmed?'<span style="font-size:9px;background:#ECFDF5;color:#059669;padding:2px 7px;border-radius:4px;font-weight:700;">DONE</span>':""}
+          ${notCheckedWarning?'<span style="font-size:9px;background:#FEF3C7;color:#92400E;padding:2px 7px;border-radius:4px;font-weight:700;">UNCHECKED</span>':""}
+        </div>
+        <div class="ts" style="margin-top:3px;">${sub}</div>
+      </div>
+      ${renderSummaryPill(batch)}
+      <div style="color:#9CA3AF;font-size:11px;">${open?"&#9650;":"&#9660;"}</div>
+    </div>
+    ${body}
+  </div>`;
+}
+
+/* ═════════════════════════════════════════════
+   STAT DETAIL PANEL
+═════════════════════════════════════════════ */
+function renderStatDetail(key) {
+  const b = S.batches;
+  let rows = [];
+  let title = "";
+
+  if (key==="open") {
+    title = "Awaiting Medicare Response";
+    rows = b.filter(x=>!x.outcome).map(x=>({
+      bid:x.id, home:x.home,
+      detail:(x.totalCount||x.items.length)+" claims",
+      sub:"submitted "+hoursAgo(x.submittedAt),
+      color:"#2563EB",
+    }));
+  } else if (key==="awaiting") {
+    title = "Response Overdue (48h+)";
+    rows = b.filter(x=>isOverdue(x)).map(x=>({
+      bid:x.id, home:x.home,
+      detail:(x.totalCount||x.items.length)+" claims",
+      sub:"submitted "+hoursAgo(x.submittedAt),
+      color:"#D97706",
+    }));
+  } else if (key==="confirmed") {
+    title = "Confirmed Batches";
+    rows = b.filter(x=>x.outcome==="confirmed").map(x=>({
+      bid:x.id, home:x.home,
+      detail:(x.totalCount||x.items.length)+" claims",
+      sub:x.confirmedAt?"confirmed "+hoursAgo(x.confirmedAt):"",
+      color:"#059669",
+    }));
+  } else if (key==="pending") {
+    title = "Pending Resolution";
+    b.forEach(batch=>{
+      (batch.items||[]).filter(i=>i.status==="rejected"&&!i.cleared).forEach(item=>{
+        const rt = REJ_TYPES.find(r=>r.key===item.rejectionType);
+        const chases = item.chases||[];
+        const last = chases.length>0?chases[chases.length-1]:null;
+        rows.push({
+          bid:batch.id, home:batch.home,
+          detail:(item.invoiceNum||item.label)+(rt?" &middot; "+esc(rt.label):" &middot; <span style='color:#D97706;'>reason not yet set</span>"),
+          sub:chases.length>0?chases.length+" chase(s)"+(last?" &middot; last: "+hoursAgo(last.sentAt):""):"no chases logged",
+          color:"#DC2626",
+        });
+      });
+    });
+  }
+
+  if (!rows.length) return `<div style="background:white;border:1px solid #E2E5F0;border-radius:10px;padding:14px 16px;font-size:12px;color:#9CA3AF;margin-bottom:12px;">Nothing here right now.</div>`;
+
+  return `<div style="background:white;border:1px solid #E2E5F0;border-radius:10px;overflow:hidden;margin-bottom:12px;animation:slideIn 0.1s ease;">
+    <div style="padding:9px 16px;border-bottom:1px solid #F0F2F8;font-size:11px;font-weight:700;color:#374151;display:flex;justify-content:space-between;">
+      <span>${esc(title)}</span><span style="color:#9CA3AF;font-weight:400;">${rows.length} result${rows.length!==1?"s":""}</span>
+    </div>
+    ${rows.map(r=>`
+      <div style="padding:10px 16px;border-bottom:1px solid #F8F9FC;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background 0.1s;"
+        data-action="jump-to-batch" data-bid="${esc(r.bid)}"
+        onmouseenter="this.style.background='#F8F9FC'" onmouseleave="this.style.background=''">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:#374151;display:flex;align-items:center;gap:6px;">
+            <span style="width:6px;height:6px;border-radius:50%;background:${r.color};display:inline-block;flex-shrink:0;"></span>
+            ${esc(r.home)}
+          </div>
+          <div style="font-size:10px;color:#6B7280;margin-top:2px;margin-left:12px;">${r.detail}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:12px;">
+          <div style="font-size:10px;color:#9CA3AF;">${r.sub}</div>
+          <div style="font-size:10px;color:#2563EB;margin-top:1px;">View &rsaquo;</div>
+        </div>
+      </div>`).join("")}
+  </div>`;
+}
+
+/* ═════════════════════════════════════════════
+   RENDER — TABS
+═════════════════════════════════════════════ */
+function renderTracker() {
+  const b=S.batches;
+  const stats=[
+    {key:"open",      label:"Awaiting Response",      value:b.filter(x=>!x.outcome&&!isOverdue(x)).length,                                                  color:"#2563EB"},
+    {key:"awaiting",  label:"Response Overdue (48h+)", value:b.filter(x=>isOverdue(x)).length,                                                               color:"#D97706"},
+    {key:"confirmed", label:"Batches Confirmed",       value:b.filter(x=>x.outcome==="confirmed").length,                                                    color:"#059669"},
+    {key:"pending",   label:"Pending Resolution",      value:b.reduce((s,x)=>s+x.items.filter(i=>i.status==="rejected"&&!i.cleared).length,0),              color:"#DC2626"},
+  ];
+  const filters=[["all","All"],["open","Awaiting Response"],["overdue","Response Overdue"],["has_rejections","Has Pending Items"],["confirmed","Confirmed"]];
+  const filtered=S.filter==="all"?b
+    :S.filter==="open"?b.filter(x=>!x.outcome&&!isOverdue(x))
+    :S.filter==="overdue"?b.filter(x=>isOverdue(x))
+    :S.filter==="confirmed"?b.filter(x=>x.outcome==="confirmed")
+    :S.filter==="has_rejections"?b.filter(x=>x.outcome==="has_rejections")
+    :b;
+
+  return `
+    <div class="stats-grid">${stats.map(s=>{
+      const isOpen = S.openStat===s.key;
+      return `<div class="stat-card" style="cursor:pointer;transition:box-shadow 0.15s,border-color 0.15s;${isOpen?'border-color:'+s.color+';box-shadow:0 0 0 2px '+s.color+'22;':''}"
+        data-action="open-stat" data-stat="${s.key}"
+        onmouseenter="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'" onmouseleave="this.style.boxShadow='${isOpen?'0 0 0 2px '+s.color+'22':'none'}'">
+        <div class="stat-num" style="color:${s.color};">${s.value}</div>
+        <div class="stat-lbl">${esc(s.label)}</div>
+        <div style="font-size:9px;color:#C4C9D4;margin-top:4px;">${isOpen?"▲ hide":"▼ details"}</div>
+      </div>`;}).join("")}
+    </div>
+    ${S.openStat ? renderStatDetail(S.openStat) : '<div style="margin-bottom:4px;"></div>'}
+    <div style="font-size:10px;color:#9CA3AF;margin-bottom:10px;">&#9432; Batches with no Medicare response after 48 hours move to <strong>Response Overdue</strong> — they require follow-up.</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <div style="display:flex;gap:5px;flex-wrap:wrap;">${
+        filters.map(([k,l])=>`<button class="filter-pill ${S.filter===k?"active":""}" data-action="set-filter" data-filter="${k}">${esc(l)}</button>`).join("")
+      }</div>
+      <button class="btn btn-primary" data-action="toggle-add">+ Add Batch</button>
+    </div>
+    ${S.showAdd?`
+      <div class="add-form" style="margin-bottom:12px;">
+        <div style="font-size:11px;font-weight:700;color:#2563EB;margin-bottom:12px;">NEW BATCH</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 120px auto;gap:10px;align-items:end;">
+          <div>
+            <div class="field-label">HOME / LOCATION</div>
+            <div class="home-wrap">
+              <input type="text" id="nb-home" autocomplete="off" placeholder="Type to search…"
+                value="${esc(S.newBatch.home||"")}"
+                style="width:100%;padding:7px 10px;border:1px solid #D1D5E0;border-radius:6px;font-size:13px;font-family:inherit;">
+              <div class="home-dropdown" id="home-dropdown">
+                ${HOMES.map(h=>`<div class="home-opt" data-action="pick-home" data-val="${esc(h)}">${esc(h)}</div>`).join("")}
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="field-label">DATE SUBMITTED</div>
+            <input type="date" id="nb-date" value="${esc(S.newBatch.date)}">
+          </div>
+          <div>
+            <div class="field-label">NO. OF CLAIMS</div>
+            <input type="number" id="nb-count" min="1" max="200" placeholder="e.g. 10" value="${S.newBatch.count||""}">
+          </div>
+          <button class="btn btn-blue" data-action="add-batch">Add</button>
+        </div>
+        <div style="font-size:11px;color:#9CA3AF;margin-top:8px;">Log a batch once it has been cross-checked and submitted to Medicare. You only need to track individual claims if any are rejected.</div>
+      </div>`:""}
+    <div>${filtered.length===0
+      ?'<div style="text-align:center;color:#9CA3AF;padding:40px 20px;font-size:13px;">No batches for this filter.</div>'
+      :filtered.map(renderBatch).join("")}
+    </div>`;
+}
+
+function renderOverview() {
+  const groups=[
+    {key:"pending",   label:"Ready to Submit",    color:"#6B7280"},
+    {key:"submitted", label:"Submitted to ZedMed", color:"#2563EB"},
+    {key:"awaiting",  label:"Awaiting Medicare",   color:"#D97706"},
+  ];
+  return '<div style="font-size:12px;color:#9CA3AF;margin-bottom:14px;">All batches grouped by stage.</div>'
+    +groups.map(g=>{
+      const bs=S.batches.filter(b=>b.stage===g.key);
+      if(!bs.length) return "";
+      return `<div class="ov-group">
+        <div class="ov-header">
+          <div style="width:8px;height:8px;border-radius:50%;background:${g.color};flex-shrink:0;"></div>
+          <span style="font-size:12px;font-weight:700;color:${g.color};">${esc(g.label)}</span>
+          <span style="font-size:11px;color:#9CA3AF;margin-left:auto;">${bs.length} batch${bs.length>1?"es":""}</span>
+        </div>
+        ${bs.map(b=>{
+          const c=batchCounts(b);
+          const p=[];
+          if(c.confirmed)p.push('<span style="color:#059669;">'+c.confirmed+'&#10003;</span>');
+          if(c.awaiting) p.push('<span style="color:#D97706;">'+c.awaiting+'&#9203;</span>');
+          if(c.rejected) p.push('<span style="color:#DC2626;">'+c.rejected+'&#10007;</span>');
+          return `<div class="ov-row">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:12px;font-weight:500;">${esc(b.home)}</span>
+              ${isOverdue(b)?'<span class="badge badge-overdue">OVERDUE</span>':""}
+              ${isStale(b)?'<span class="badge badge-chase">CHASE</span>':""}
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:10px;color:#9CA3AF;">${b.totalCount||b.items.length} claims</span>
+              ${b.outcome==="confirmed"?'<span style="font-size:10px;color:#059669;font-weight:600;">All confirmed &#10003;</span>':'<span style="font-size:11px;">'+p.join(" &middot; ")+'</span>'}
+            </div>
+          </div>`;
+        }).join("")}
+      </div>`;
+    }).join("");
+}
+
+function renderTrash() {
+  purgeExpired();
+  const del = S.deleted||[];
+  if (!del.length) return `
+    <div style="text-align:center;color:#9CA3AF;padding:48px 20px;">
+      <div style="font-size:32px;margin-bottom:10px;">&#128465;</div>
+      <div style="font-size:13px;font-weight:600;color:#6B7280;">Recently deleted is empty</div>
+      <div style="font-size:11px;margin-top:6px;max-width:320px;margin-left:auto;margin-right:auto;line-height:1.6;">
+        Deleted batches are held here for 24 hours so you can recover anything removed by mistake.
+      </div>
+    </div>`;
+
+  return `
+    <div style="font-size:12px;color:#9CA3AF;margin-bottom:14px;line-height:1.6;">
+      Batches deleted within the last 24 hours. Restore to return them to the tracker, or delete permanently to remove now.
+    </div>
+    <div>${del.slice().sort((a,b)=>new Date(b.deletedAt)-new Date(a.deletedAt)).map(b=>{
+      const remainingMs = new Date(b.deletedAt).getTime() + 24*3600000 - Date.now();
+      const remainingH  = Math.floor(remainingMs/3600000);
+      const remainingM  = Math.floor((remainingMs%3600000)/60000);
+      const urgent      = remainingH < 2;
+      const total       = b.totalCount||b.items.length;
+      const rejCount    = (b.items||[]).filter(i=>i.status==="rejected"&&!i.cleared).length;
+      return `<div class="card" style="border-color:#E2E5F0;${urgent?"border-color:#FCA5A5;":""}">
+        <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
+              <span style="font-size:13px;font-weight:600;color:#374151;">${esc(b.home)}</span>
+              <span style="font-size:9px;background:#F3F4F6;color:#6B7280;padding:2px 7px;border-radius:4px;font-weight:600;">${esc(BATCH_STAGE[b.stage]?.label||b.stage)}</span>
+              ${rejCount>0?'<span style="font-size:9px;background:#FEE2E2;color:#DC2626;padding:2px 7px;border-radius:4px;font-weight:600;">'+rejCount+' rejection'+(rejCount!==1?"s":"")+'</span>':""}
+            </div>
+            <div style="font-size:10px;color:#9CA3AF;margin-top:4px;">${total} claims &middot; ${esc(b.date)} &middot; deleted ${hoursAgo(b.deletedAt)}</div>
+            <div style="font-size:10px;font-weight:600;color:${urgent?"#DC2626":"#D97706"};margin-top:3px;">
+              &#9203; Expires in ${remainingH}h ${remainingM}m${urgent?" &mdash; restore soon":""}
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0;">
+            <button class="btn btn-blue" style="font-size:11px;padding:7px 16px;"
+              data-action="restore-batch" data-bid="${esc(b.id)}">&#8617; Restore</button>
+            <button class="btn-ghost" style="font-size:10px;color:#DC2626;border-color:#FCA5A5;"
+              data-action="perm-delete-batch" data-bid="${esc(b.id)}">Delete permanently</button>
+          </div>
+        </div>
+      </div>`;
+    }).join("")}</div>`;
+}
+
+function render() {
+  const todayStr=new Date().toLocaleDateString("en-AU",{weekday:"long",day:"numeric",month:"long"});
+  const overdueCount =S.batches.filter(isOverdue).length;
+  document.getElementById("app").innerHTML=`
+    <div class="header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:30px;height:30px;background:linear-gradient(135deg,#2563EB,#7C3AED);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;">&#9877;</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;letter-spacing:-0.3px;">Billing Tracker</div>
+          <div style="font-size:10px;color:#6B7280;">${esc(todayStr)}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        ${overdueCount >0?'<span class="hdr-badge hdr-overdue">'+overdueCount+' OVERDUE</span>':""}
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn ${S.tab==="tracker"?"active":""}" data-action="set-tab" data-tab="tracker">Daily Tracker</button>
+      <button class="tab-btn ${S.tab==="overview"?"active":""}" data-action="set-tab" data-tab="overview">Overview</button>
+      <button class="tab-btn ${S.tab==="trash"?"active":""}" data-action="set-tab" data-tab="trash" style="${(S.deleted||[]).length>0?"color:#D97706;":""}">
+        Recently Deleted${(S.deleted||[]).length>0?" ("+S.deleted.length+")":""}
+      </button>
+    </div>
+    <div class="content">${S.tab==="tracker"?renderTracker():S.tab==="overview"?renderOverview():renderTrash()}</div>`;
+}
+
+/* ═════════════════════════════════════════════
+   HOME TYPEAHEAD
+═════════════════════════════════════════════ */
+function filterHomes(q) {
+  const dd = document.getElementById("home-dropdown");
+  if (!dd) return;
+  const v = q.trim().toLowerCase();
+  let any = false;
+  dd.querySelectorAll(".home-opt").forEach(o => {
+    const match = !v || o.dataset.val.toLowerCase().includes(v);
+    o.style.display = match ? "" : "none";
+    if (match) any = true;
+  });
+  dd.classList.toggle("open", any);
+}
+document.addEventListener("input", function(e) {
+  if (e.target.id === "nb-home") filterHomes(e.target.value);
+});
+
+/* ═════════════════════════════════════════════
+   EVENT DELEGATION — single listener, no inline onclick
+═════════════════════════════════════════════ */
+document.addEventListener("click", function(e) {
+  // Close home dropdown when clicking outside
+  if (!e.target.closest(".home-wrap")) {
+    const dd = document.getElementById("home-dropdown");
+    if (dd) dd.classList.remove("open");
+  }
+
+  const el = e.target.closest("[data-action]");
+  if (!el) return;
+  e.stopPropagation();
+
+  const {action, bid, iid, filter, tab} = el.dataset;
+
+  // Read add-form fields from DOM before any mutation
+  if (action==="add-batch") {
+    const h=document.getElementById("nb-home");
+    const d=document.getElementById("nb-date");
+    const c=document.getElementById("nb-count");
+    if(h) S.newBatch.home=h.value;
+    if(d) S.newBatch.date=d.value;
+    if(c) S.newBatch.count=parseInt(c.value)||1;
+  }
+
+  switch(action) {
+    case "set-tab":       S.tab=tab; S.openBatch=null; S.openStat=null; render(); break;
+    case "set-filter":    S.filter=filter; S.openStat=null; render(); break;
+    case "open-stat":     S.openStat=S.openStat===el.dataset.stat?null:el.dataset.stat; render(); break;
+    case "jump-to-batch": S.tab="tracker"; S.openBatch=el.dataset.bid; S.openStat=null; S.filter="all"; render(); break;
+    case "toggle-add":    S.showAdd=!S.showAdd; render(); break;
+    case "toggle-batch":  S.openBatch=S.openBatch===bid?null:bid; render(); break;
+    case "confirm-item":  doConfirmItem(bid,iid); break;
+    case "reject-item":   doRejectItem(bid,iid); break;
+    case "clear-item":    doClearItem(bid,iid); break;
+    case "clear-all":          doClearAllConfirmed(bid); break;
+    case "check-batch":        doCheckBatch(bid); break;
+    case "confirm-all":        doConfirmAll(bid); break;
+    case "add-rejected-item":  doAddRejectedItem(bid); break;
+    case "resubmit-item":      doResubmitItem(bid,iid); break;
+    case "set-rejection-type": doSetRejectionType(bid,iid,el.dataset.rtype); break;
+    case "log-chase":          doLogChase(bid,iid); break;
+    case "escalate-item":      doEscalateItem(bid,iid); break;
+    case "save-invoice":      doSaveInvoice(bid,iid); break;
+    case "toggle-no-invoice": doToggleNoInvoice(bid,iid); break;
+    case "pick-home": {
+      const inp = document.getElementById("nb-home");
+      if (inp) { inp.value = el.dataset.val; S.newBatch.home = el.dataset.val; }
+      const dd = document.getElementById("home-dropdown");
+      if (dd) dd.classList.remove("open");
+      break;
+    }
+    case "add-batch":     doAddBatch(); break;
+    case "delete-batch":       doDeleteBatch(bid); break;
+    case "restore-batch":      doRestoreBatch(bid); break;
+    case "perm-delete-batch":  if(confirm("Permanently delete this batch? This cannot be undone.")) doPermDeleteBatch(bid); break;
+  }
+});
+
+render();
+</script>
+</body>
+</html>
