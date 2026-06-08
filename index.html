@@ -19,14 +19,14 @@ body {
 }
 .tabs { background: white; border-bottom: 1px solid #E2E5F0; padding: 0 20px; display: flex; }
 .content { padding: 18px 20px; max-width: 900px; margin: 0 auto; }
-
+ 
 .card { background: white; border: 1px solid #E2E5F0; border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
-
+ 
 .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 4px; }
 .stat-card  { background: white; border: 1px solid #E2E5F0; border-radius: 10px; padding: 14px 16px; }
 .stat-num   { font-size: 24px; font-weight: 700; }
 .stat-lbl   { font-size: 11px; color: #6B7280; margin-top: 2px; }
-
+ 
 .tab-btn {
   cursor: pointer; background: none; border: none; font-family: inherit;
   padding: 11px 16px; font-size: 13px; font-weight: 400; color: #6B7280;
@@ -38,7 +38,7 @@ body {
   font-weight: 500; border: 1px solid #D1D5E0; background: none; color: #6B7280; font-family: inherit;
 }
 .filter-pill.active { background: #EEF2FF; color: #2563EB; border-color: #2563EB; }
-
+ 
 .home-wrap { position: relative; }
 .home-dropdown {
   position: absolute; top: calc(100% + 3px); left: 0; right: 0; z-index: 200;
@@ -53,7 +53,7 @@ body {
 }
 .home-opt:last-child { border-bottom: none; }
 .home-opt:hover, .home-opt.focused { background: #EEF2FF; color: #2563EB; }
-
+ 
 .batch-header {
   cursor: pointer; padding: 13px 16px;
   display: grid; grid-template-columns: 1fr auto auto;
@@ -61,21 +61,21 @@ body {
 }
 .batch-header:hover { background: #FAFBFD; }
 .batch-body { border-top: 1px solid #F0F2F8; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
-
+ 
 .step-bar  { display: flex; align-items: flex-start; }
 .step-item { display: flex; align-items: center; flex: 1; }
 .step-dot-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .step-dot  { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
 .step-lbl  { font-size: 9px; font-weight: 500; text-align: center; max-width: 64px; line-height: 1.2; }
 .step-line { flex: 1; height: 2px; margin: 0 3px; margin-bottom: 14px; }
-
+ 
 .action-zone { border-radius: 8px; padding: 13px 14px; border: 1px solid; }
 .az-blue  { background: #F0F9FF; border-color: #BAE6FD; }
 .az-amber { background: #FFFBEB; border-color: #FCD34D; }
 .az-green { background: #F0FDF4; border-color: #86EFAC; }
 .action-prompt { font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 6px; }
 .action-hint   { font-size: 11px; color: #6B7280; margin-bottom: 10px; }
-
+ 
 /* Buttons — NO onclick, all handled via data-action */
 .btn {
   display: inline-flex; align-items: center; gap: 4px;
@@ -96,7 +96,7 @@ body {
 .btn-ghost-green { background: none; border: 1px solid #059669; color: #059669; font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 5px; font-family: inherit; cursor: pointer; }
 .btn-link { background: none; border: none; color: #9CA3AF; font-size: 11px; cursor: pointer; font-family: inherit; padding: 0; }
 .btn-link:hover { color: #DC2626; }
-
+ 
 .summary-pill { font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 20px; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
 .badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
 .badge-overdue { background: #DC2626; color: white; animation: pulse 2s infinite; }
@@ -105,7 +105,7 @@ body {
 .hdr-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
 .hdr-overdue  { background: #DC2626; color: white; animation: pulse 2s infinite; }
 .hdr-rejected { background: #FEF3C7; color: #92400E; }
-
+ 
 .add-form { background: white; border: 1.5px solid #2563EB; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
 .field-label { font-size: 10px; color: #6B7280; margin-bottom: 4px; font-weight: 600; }
 input[type=text], input[type=number], input[type=date], select, textarea {
@@ -115,15 +115,15 @@ input[type=text], input[type=number], input[type=date], select, textarea {
 input[type=text]:focus, input[type=number]:focus, input[type=date]:focus,
 select:focus, textarea:focus { border-color: #2563EB; }
 input[type=text], input[type=number], input[type=date], select { width: 100%; }
-
+ 
 .ts { font-size: 10px; color: #9CA3AF; }
 .ts-green { font-size: 10px; color: #059669; }
-
+ 
 .ov-group { background: white; border: 1px solid #E2E5F0; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
 .ov-header{ padding: 10px 16px; border-bottom: 1px solid #F0F2F8; display: flex; align-items: center; gap: 8px; }
 .ov-row   { padding: 9px 16px; border-bottom: 1px solid #F8F9FC; display: flex; justify-content: space-between; align-items: center; }
 .ov-row:last-child { border-bottom: none; }
-
+ 
 @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:0.5} }
 @keyframes slideIn { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:translateY(0)} }
 </style>
@@ -150,26 +150,26 @@ const HOMES = [
   "VMCH Torquay","Warrigal Bundanoon","Warrigal Goulburn","WB Messer",
   "Whiddon Mudgee","Wintringham Ron Conn"
 ];
-
+ 
 const BATCH_STAGE = {
   awaiting: { label:"Awaiting Medicare Response", color:"#D97706", bg:"#FFFBEB" },
 };
 const STORAGE_KEY = "billing_tracker_v11";
-
+ 
 const REJ_TYPES = [
   { key:"code-error",     label:"Code error" },
   { key:"gp-np-conflict", label:"GP + NP conflict" },
   { key:"nurse-confirm",  label:"Nurse confirmation required" },
   { key:"other",          label:"Other" },
 ];
-
+ 
 /* ═════════════════════════════════════════════
    HELPERS
 ═════════════════════════════════════════════ */
 let _uid = 1000;
 function uid() { return 'id' + (++_uid) + '_' + Math.floor(Math.random()*9999); }
 function today() { return new Date().toISOString().split("T")[0]; }
-
+ 
 function hoursAgo(ts) {
   if (!ts) return null;
   const h = Math.floor((Date.now()-new Date(ts).getTime())/3600000);
@@ -199,7 +199,7 @@ function batchCounts(b) {
 function hasRejected(b)  { return (b.items||[]).some(i=>i.status==="rejected"&&!i.cleared); }
 function isOverdue(b)    { return b.outcome!=="confirmed"&&b.submittedAt&&Date.now()-new Date(b.submittedAt).getTime()>48*3600000; }
 function isStale(b)      { return b.outcome!=="confirmed"&&b.submittedAt&&Date.now()-new Date(b.submittedAt).getTime()>24*3600000&&!isOverdue(b); }
-
+ 
 /* ═════════════════════════════════════════════
    INITIAL DATA
 ═════════════════════════════════════════════ */
@@ -219,7 +219,7 @@ function mkItem(label, status, hrsAgo) {
     confirmedAt: status==="confirmed" ? new Date(now-hrsAgo*3600000+1800000).toISOString() : null,
   };
 }
-
+ 
 function mkRejectedItem(label) {
   return {
     id:uid(), label, status:"rejected",
@@ -229,7 +229,7 @@ function mkRejectedItem(label) {
     rejectedAt:new Date().toISOString(), submittedAt:null, confirmedAt:null, escalatedAt:null,
   };
 }
-
+ 
 function makeDemo() {
   return [
     {
@@ -272,7 +272,7 @@ function makeDemo() {
     },
   ];
 }
-
+ 
 /* ═════════════════════════════════════════════
    STATE
 ═════════════════════════════════════════════ */
@@ -295,7 +295,7 @@ function saveState() {
   purgeExpired();
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ batches:S.batches, deleted:S.deleted })); } catch(e) {}
 }
-
+ 
 const _init = loadState();
 const S = {
   batches:   _init.batches,
@@ -307,19 +307,19 @@ const S = {
   tab:       "tracker",
   newBatch:  { home:"", date:today(), count:1 },
 };
-
+ 
 /* ═════════════════════════════════════════════
    MUTATIONS
 ═════════════════════════════════════════════ */
 function mutate(fn) { fn(); saveState(); render(); }
-
+ 
 function updateBatch(id, fn) {
   S.batches = S.batches.map(b => b.id===id ? fn(b) : b);
 }
 function updateItem(bid, iid, fn) {
   updateBatch(bid, b => ({ ...b, items: b.items.map(i => i.id===iid ? fn(i) : i) }));
 }
-
+ 
 function doConfirmItem(bid, iid) {
   mutate(() => updateItem(bid, iid, i => ({
     ...i, status:"confirmed", confirmedAt:new Date().toISOString()
@@ -369,26 +369,26 @@ function doResubmitItem(bid, iid) {
   const batch = S.batches.find(b=>b.id===bid);
   const item  = batch ? batch.items.find(i=>i.id===iid) : null;
   if (!item) return;
-
+ 
   // Hard gate: rejection type must be selected
   if (!item.rejectionType) return;
-
+ 
   let rejTypeLabel = (REJ_TYPES.find(r=>r.key===item.rejectionType)||{label:item.rejectionType}).label;
   if (item.rejectionType === "other") {
     const otherField = document.getElementById('rej_type_other_'+iid);
-    const otherText  = otherField ? otherField.value.trim() : "";
+    const otherText  = otherField ? otherField.value.trim() : (item.rejectionTypeOther||"").trim();
     if (!otherText) { if(otherField){otherField.style.borderColor="#DC2626";otherField.focus();} return; }
     rejTypeLabel = "Other: " + otherText;
   }
-
+ 
   // Hard gate: resolution note required
   const ta = document.getElementById('rej_'+iid);
   const reason = ta ? ta.value.trim() : "";
   if (!reason) { if(ta){ta.style.borderColor="#DC2626";ta.focus();} return; }
-
+ 
   const labelField = document.getElementById('rej_label_'+iid);
   const newInvoice = labelField ? labelField.value.trim() : "";
-
+ 
   mutate(() => updateItem(bid, iid, i => ({
     ...i,
     label: newInvoice || i.invoiceNum || i.label,
@@ -466,7 +466,7 @@ function doAddBatch() {
     S.showAdd=false;
   });
 }
-
+ 
 /* ═════════════════════════════════════════════
    RENDER HELPERS
 ═════════════════════════════════════════════ */
@@ -487,11 +487,11 @@ function renderStepBar(batch) {
       +'</div>';
   }).join("")+'</div>';
 }
-
+ 
 function renderBatchAction(batch) {
   const bid = batch.id;
   const total = batch.totalCount || batch.items.length;
-
+ 
   // ── Awaiting Medicare: batch-level outcome ──
   if (batch.stage==="awaiting") {
     // All confirmed — done
@@ -505,7 +505,7 @@ function renderBatchAction(batch) {
           </div>
         </div>
       </div>`;
-
+ 
     // Has rejections — summary + add more
     if (batch.outcome==="has_rejections") {
       const c = batchCounts(batch);
@@ -531,7 +531,7 @@ function renderBatchAction(batch) {
           <button class="btn-ghost" data-action="add-rejected-item" data-bid="${esc(bid)}">+ Log another pending item</button>
         </div>`;
     }
-
+ 
     // No outcome yet — ask
     return `
       <div class="action-zone az-amber">
@@ -547,30 +547,30 @@ function renderBatchAction(batch) {
   }
   return "";
 }
-
+ 
 function renderItem(batch, item) {
   const bid = batch.id;
   const iid = item.id;
   const inAwaitingBatch = batch.stage==="awaiting";
-
+ 
   let bg,border;
   if (item.cleared)                   { bg="#F8F8FA"; border="#E2E5F0"; }
   else if (item.status==="confirmed") { bg="#F0FDF4"; border="#BBF7D0"; }
   else if (item.status==="rejected")  { bg="#FFF8F8"; border="#FCA5A5"; }
   else                                { bg="#FFFBEB"; border="#FDE68A"; }
-
+ 
   const pillMap={awaiting:["#D97706","#FFFBEB","Awaiting"],confirmed:["#059669","#ECFDF5","Confirmed &#10003;"],rejected:["#DC2626","#FEF2F2","Rejected"]};
   const [pClr,pBg,pLbl] = pillMap[item.status]||["#6B7280","#F3F4F6","&ndash;"];
-
+ 
   const rh=(item.rejectionHistory||[]).length;
   const rhBadge=rh>0?'<span style="font-size:9px;background:#FEE2E2;color:#DC2626;padding:1px 5px;border-radius:4px;font-weight:600;margin-left:4px;">'+rh+'&times;&#10007;</span>':"";
-
+ 
   // Status column — always show "CURRENT STAGE" label when in awaiting batch
   const showStageLabel = inAwaitingBatch && !item.cleared;
   const stageLabel = showStageLabel
     ? '<div style="font-size:9px;color:#9CA3AF;font-weight:600;letter-spacing:0.3px;margin-bottom:3px;">CURRENT STAGE</div>' : "";
   const statusCol = `<div>${stageLabel}<span style="background:${pBg};color:${pClr};font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;">${pLbl}</span>${item.confirmedAt?'<span style="font-size:10px;color:#9CA3AF;margin-left:6px;">'+hoursAgo(item.confirmedAt)+'</span>':""}</div>`;
-
+ 
   // Actions column — for awaiting items, show "MEDICARE RESPONDED?" prompt
   let actionsLabel = "";
   let actions = "";
@@ -588,28 +588,30 @@ function renderItem(batch, item) {
     // No archive — must complete the form below
     actions = '<span style="font-size:10px;color:#DC2626;font-style:italic;">action required &#8595;</span>';
   }
-
+ 
   const showRejForm = item.status==="rejected" && inAwaitingBatch && !item.cleared;
-
+ 
   // Build rejection form
   let rejForm = "";
   if (showRejForm) {
     const chases   = item.chases || [];
     const isEscalated = chases.length > 0 &&
       (Date.now() - new Date(chases[0].sentAt).getTime()) > 7*24*3600000;
-
+ 
     // Rejection type pills (fully inline styled to avoid btn-sm border:none conflict)
     const rejTypePills = REJ_TYPES.map(rt => {
       const sel = item.rejectionType === rt.key;
       return `<button style="font-size:10px;font-weight:700;padding:4px 10px;border-radius:5px;font-family:inherit;cursor:pointer;${sel?"background:#DC2626;color:white;border:1.5px solid #DC2626;":"background:white;color:#DC2626;border:1.5px solid #FCA5A5;"}"
         data-action="set-rejection-type" data-bid="${esc(bid)}" data-iid="${esc(iid)}" data-rtype="${esc(rt.key)}">${esc(rt.label)}</button>`;
     }).join("");
-
+ 
     const otherField = item.rejectionType === "other" ? `
       <input type="text" id="rej_type_other_${esc(iid)}"
+        value="${esc(item.rejectionTypeOther||"")}"
+        data-bid="${esc(bid)}" data-iid="${esc(iid)}"
         placeholder="Describe rejection reason..."
         style="margin-top:6px;width:100%;font-size:11px;border:1.5px solid #FCA5A5;border-radius:6px;background:white;padding:6px 10px;color:#1A1D2E;">` : "";
-
+ 
     // Chase section — shown for all rejection types
     let chaseSection = "";
     if (item.rejectionType) {
@@ -653,22 +655,22 @@ function renderItem(batch, item) {
           ${chaseBtn}
         </div>`;
     }
-
+ 
     const prevHist = (item.rejectionHistory||[]).length>0
       ? '<div style="margin-top:6px;font-size:10px;color:#9CA3AF;border-top:1px solid #FCA5A5;padding-top:6px;">Previous: '
         + item.rejectionHistory.map((h,i)=>'#'+(i+1)+(h.rejectionType?' ['+esc(h.rejectionType)+']':'')+' &mdash; '+esc(h.reason.substring(0,50))+(h.reason.length>50?"&hellip;":"")).join(" &middot; ")
         + '</div>' : "";
-
+ 
     // Gate: resubmit disabled until type selected
     const typeSelected = !!item.rejectionType;
     const resubmitStyle = typeSelected ? '' : 'opacity:0.4;cursor:not-allowed;pointer-events:none;';
-
+ 
     rejForm = `
       <div style="padding:12px;background:#FFF0F0;border:1px solid #FCA5A5;border-top:none;border-radius:0 0 7px 7px;margin-top:-4px;">
         <div style="font-size:10px;color:#D97706;font-weight:700;background:#FFFBEB;padding:5px 8px;border-radius:5px;margin-bottom:10px;">
           &#9888; Pending resolution &mdash; log details below. Resubmit once resolved.
         </div>
-
+ 
         <div style="margin-bottom:10px;">
           <div style="font-size:10px;color:#92400E;font-weight:700;margin-bottom:5px;">INVOICE NUMBER (from ZedMed):</div>
           ${item.noInvoiceYet
@@ -689,15 +691,15 @@ function renderItem(batch, item) {
           }
           ${item.invoiceNum&&!item.noInvoiceYet?`<div style="font-size:10px;color:#059669;margin-top:3px;font-weight:600;">&#10003; Saved: ${esc(item.invoiceNum)}</div>`:""}
         </div>
-
+ 
         <div style="margin-bottom:8px;">
           <div style="font-size:10px;color:#92400E;font-weight:700;margin-bottom:5px;">STEP 1 &mdash; Rejection type:</div>
           <div style="display:flex;gap:5px;flex-wrap:wrap;">${rejTypePills}</div>
           ${otherField}
         </div>
-
+ 
         ${chaseSection}
-
+ 
         <div style="margin-top:10px;">
           <div style="font-size:10px;color:#92400E;font-weight:700;margin-bottom:5px;">STEP 2 &mdash; Resolution note (required to resubmit):</div>
           <div style="display:flex;gap:8px;align-items:flex-start;">
@@ -711,7 +713,7 @@ function renderItem(batch, item) {
         </div>
       </div>`;
   }
-
+ 
   const alignItems = (item.status==="awaiting" && inAwaitingBatch && !item.cleared) ? "flex-start" : "center";
   return `<div style="margin-bottom:${showRejForm?8:4}px;">
     <div style="display:grid;grid-template-columns:140px 1fr auto;gap:10px;align-items:${alignItems};padding:9px 12px;border-radius:${showRejForm?"7px 7px 0 0":"7px"};border:1px solid ${border};background:${bg};${item.cleared?"opacity:0.5;":""}">
@@ -722,7 +724,7 @@ function renderItem(batch, item) {
     ${rejForm}
   </div>`;
 }
-
+ 
 function renderSummaryPill(batch) {
   const st = BATCH_STAGE[batch.stage];
   if (batch.stage!=="awaiting") {
@@ -742,7 +744,7 @@ function renderSummaryPill(batch) {
   const total = batch.totalCount||0;
   return `<div class="summary-pill" style="background:#FFFBEB;color:#D97706;">Awaiting &mdash; ${total} claim${total!==1?"s":""}</div>`;
 }
-
+ 
 function renderBatch(batch) {
   const over  = isOverdue(batch);
   const stale = isStale(batch);
@@ -751,21 +753,21 @@ function renderBatch(batch) {
   const c     = batchCounts(batch);
   const confirmed = batch.outcome==="confirmed";
   const borderClr = over||rej?"#DC2626":stale?"#D97706":confirmed?"#86EFAC":"#E2E5F0";
-
+ 
   const total = batch.totalCount || batch.items.length;
   const checks = batch.checks||[];
   const lastCheck = checks.length>0 ? checks[checks.length-1] : null;
   const checkedToday = lastCheck && new Date(lastCheck).toDateString()===new Date().toDateString();
   const notCheckedWarning = !confirmed && !checkedToday;
-
+ 
   const sub=[total+" claims","submitted to Medicare "+hoursAgo(batch.submittedAt),
     lastCheck?"checked "+hoursAgo(lastCheck):null].filter(Boolean).join(" &middot; ");
-
+ 
   // Items section: only shown when rejections have been logged
   const showItems = batch.outcome==="has_rejections" && (batch.items||[]).length>0;
   const confirmedItems = (batch.items||[]).filter(i=>i.status==="confirmed"&&!i.cleared);
   const showClearAll = showItems && confirmedItems.length>=2;
-
+ 
   let body="";
   if (open) {
     body=`<div class="batch-body">
@@ -804,7 +806,7 @@ function renderBatch(batch) {
       </div>
     </div>`;
   }
-
+ 
   return `<div class="card" style="border-color:${borderClr};">
     <div class="batch-header" data-action="toggle-batch" data-bid="${esc(batch.id)}">
       <div>
@@ -824,7 +826,7 @@ function renderBatch(batch) {
     ${body}
   </div>`;
 }
-
+ 
 /* ═════════════════════════════════════════════
    STAT DETAIL PANEL
 ═════════════════════════════════════════════ */
@@ -832,7 +834,7 @@ function renderStatDetail(key) {
   const b = S.batches;
   let rows = [];
   let title = "";
-
+ 
   if (key==="open") {
     title = "Awaiting Medicare Response";
     rows = b.filter(x=>!x.outcome).map(x=>({
@@ -873,9 +875,9 @@ function renderStatDetail(key) {
       });
     });
   }
-
+ 
   if (!rows.length) return `<div style="background:white;border:1px solid #E2E5F0;border-radius:10px;padding:14px 16px;font-size:12px;color:#9CA3AF;margin-bottom:12px;">Nothing here right now.</div>`;
-
+ 
   return `<div style="background:white;border:1px solid #E2E5F0;border-radius:10px;overflow:hidden;margin-bottom:12px;animation:slideIn 0.1s ease;">
     <div style="padding:9px 16px;border-bottom:1px solid #F0F2F8;font-size:11px;font-weight:700;color:#374151;display:flex;justify-content:space-between;">
       <span>${esc(title)}</span><span style="color:#9CA3AF;font-weight:400;">${rows.length} result${rows.length!==1?"s":""}</span>
@@ -898,7 +900,7 @@ function renderStatDetail(key) {
       </div>`).join("")}
   </div>`;
 }
-
+ 
 /* ═════════════════════════════════════════════
    RENDER — TABS
 ═════════════════════════════════════════════ */
@@ -917,7 +919,7 @@ function renderTracker() {
     :S.filter==="confirmed"?b.filter(x=>x.outcome==="confirmed")
     :S.filter==="has_rejections"?b.filter(x=>x.outcome==="has_rejections")
     :b;
-
+ 
   return `
     <div class="stats-grid">${stats.map(s=>{
       const isOpen = S.openStat===s.key;
@@ -969,7 +971,7 @@ function renderTracker() {
       :filtered.map(renderBatch).join("")}
     </div>`;
 }
-
+ 
 function renderOverview() {
   const groups=[
     {key:"pending",   label:"Ready to Submit",    color:"#6B7280"},
@@ -1007,7 +1009,7 @@ function renderOverview() {
       </div>`;
     }).join("");
 }
-
+ 
 function renderTrash() {
   purgeExpired();
   const del = S.deleted||[];
@@ -1019,7 +1021,7 @@ function renderTrash() {
         Deleted batches are held here for 24 hours so you can recover anything removed by mistake.
       </div>
     </div>`;
-
+ 
   return `
     <div style="font-size:12px;color:#9CA3AF;margin-bottom:14px;line-height:1.6;">
       Batches deleted within the last 24 hours. Restore to return them to the tracker, or delete permanently to remove now.
@@ -1054,7 +1056,7 @@ function renderTrash() {
       </div>`;
     }).join("")}</div>`;
 }
-
+ 
 function render() {
   const todayStr=new Date().toLocaleDateString("en-AU",{weekday:"long",day:"numeric",month:"long"});
   const overdueCount =S.batches.filter(isOverdue).length;
@@ -1080,7 +1082,7 @@ function render() {
     </div>
     <div class="content">${S.tab==="tracker"?renderTracker():S.tab==="overview"?renderOverview():renderTrash()}</div>`;
 }
-
+ 
 /* ═════════════════════════════════════════════
    HOME TYPEAHEAD
 ═════════════════════════════════════════════ */
@@ -1098,8 +1100,19 @@ function filterHomes(q) {
 }
 document.addEventListener("input", function(e) {
   if (e.target.id === "nb-home") filterHomes(e.target.value);
+  // Save "Other" rejection reason to state as user types (no re-render = no focus loss)
+  if (e.target.id && e.target.id.startsWith("rej_type_other_")) {
+    const bid = e.target.dataset.bid;
+    const iid = e.target.dataset.iid;
+    const val = e.target.value;
+    const batch = S.batches.find(b=>b.id===bid);
+    if (batch) {
+      const item = (batch.items||[]).find(i=>i.id===iid);
+      if (item) { item.rejectionTypeOther = val; saveState(); }
+    }
+  }
 });
-
+ 
 /* ═════════════════════════════════════════════
    EVENT DELEGATION — single listener, no inline onclick
 ═════════════════════════════════════════════ */
@@ -1109,13 +1122,13 @@ document.addEventListener("click", function(e) {
     const dd = document.getElementById("home-dropdown");
     if (dd) dd.classList.remove("open");
   }
-
+ 
   const el = e.target.closest("[data-action]");
   if (!el) return;
   e.stopPropagation();
-
+ 
   const {action, bid, iid, filter, tab} = el.dataset;
-
+ 
   // Read add-form fields from DOM before any mutation
   if (action==="add-batch") {
     const h=document.getElementById("nb-home");
@@ -1125,7 +1138,7 @@ document.addEventListener("click", function(e) {
     if(d) S.newBatch.date=d.value;
     if(c) S.newBatch.count=parseInt(c.value)||1;
   }
-
+ 
   switch(action) {
     case "set-tab":       S.tab=tab; S.openBatch=null; S.openStat=null; render(); break;
     case "set-filter":    S.filter=filter; S.openStat=null; render(); break;
@@ -1159,7 +1172,7 @@ document.addEventListener("click", function(e) {
     case "perm-delete-batch":  if(confirm("Permanently delete this batch? This cannot be undone.")) doPermDeleteBatch(bid); break;
   }
 });
-
+ 
 render();
 </script>
 </body>
