@@ -22,6 +22,7 @@ body{
   color:#1A1D2E; font-size:14px; line-height:1.4;
   display:flex; flex-direction:column;
 }
+#app{ flex:1; display:flex; flex-direction:column; min-height:100vh; }
 /* ── Header ── */
 .header{
   background:var(--navy); color:#fff;
@@ -678,7 +679,10 @@ function renderConfirmed(){
 
 function renderAddForm(){
   return `<div class="add-form">
-    <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:12px;">NEW BATCH</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);">NEW BATCH</div>
+      <button class="btn-link" style="color:#6B7280;" data-action="cancel-add">&#10005; Cancel</button>
+    </div>
     <div style="display:grid;grid-template-columns:1.4fr 1fr 130px 110px auto;gap:10px;align-items:end;">
       <div>
         <div class="field-label">HOME / LOCATION</div>
@@ -817,6 +821,7 @@ document.addEventListener("click",function(e){
     case "set-tab": S.tab=tab; S.openBatch=null; render(); break;
     case "goto-pending": S.tab="pending"; render(); break;
     case "toggle-add": S.showAdd=!S.showAdd; render(); break;
+    case "cancel-add": S.showAdd=false; S.newBatch={home:"",doctor:"",date:today(),count:1}; render(); break;
     case "toggle-batch": S.openBatch=S.openBatch===bid?null:bid; render(); break;
     case "add-batch": doAddBatch(); break;
     case "pick-home": { const inp=document.getElementById("nb-home"); if(inp){ inp.value=el.dataset.val; S.newBatch.home=el.dataset.val; } const dd=document.getElementById("home-dropdown"); if(dd) dd.classList.remove("open"); break; }
