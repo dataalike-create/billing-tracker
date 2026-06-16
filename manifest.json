@@ -1,0 +1,14 @@
+{
+  "name": "CMS Billing Tracker — DataAlike",
+  "short_name": "Billing Tracker",
+  "description": "Internal CMS Medicare billing batch tracker for DataAlike.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F0F2F8",
+  "theme_color": "#1B2A45",
+  "icons": [
+    { "src": "./logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
