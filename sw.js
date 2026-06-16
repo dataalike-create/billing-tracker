@@ -1,8 +1,8 @@
 /* CMS Billing Tracker — service worker
    Caches the app shell so it opens offline and can be installed to desktop.
    The Firebase SDK and live data always go to the network. */
-const CACHE = "cms-billing-shell-v2";
-const SHELL = ["./", "./index.html", "./manifest.json", "./logo.png"];
+const CACHE = "cms-billing-shell-v3";
+const SHELL = ["./", "./index.html", "./manifest.json", "./logo.png", "./icon.png"];
 
 self.addEventListener("install", e => {
   self.skipWaiting();

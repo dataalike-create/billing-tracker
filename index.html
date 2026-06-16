@@ -6,7 +6,7 @@
 <title>CMS Billing Tracker — DataAlike</title>
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#1B2A45">
-<link rel="apple-touch-icon" href="./logo.png">
+<link rel="apple-touch-icon" href="./icon.png">
 <style>
 :root{
   color-scheme: light;
@@ -762,7 +762,7 @@ function notifyOverdue(){
     try{
       new Notification("Billing Tracker — "+fresh.length+" batch"+(fresh.length>1?"es":"")+" overdue", {
         body: names+(fresh.length>3?" and more":"")+" had no Medicare response in 48h.",
-        icon: "./logo.png", tag: "cms-overdue"
+        icon: "./icon.png", tag: "cms-overdue"
       });
     }catch(e){}
   }
