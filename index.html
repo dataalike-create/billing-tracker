@@ -224,6 +224,18 @@ function batchTab(b){
 function isOverdue(b){ return !b.outcome && b.submittedAt && batchAgeMs(b) >= ESCALATE_MS; }
 function confDate(b){ return b.confirmedAt || b.cancelledAt || b.resolvedAt || b.date || b.submittedAt; }
 function claimsOf(b){ return b.totalCount || (b.items||[]).length; }
+// Claims that count as confirmed/billable, including the confirmed portion of a
+// batch that still has some pending items being resolved.
+function confirmedClaims(b){
+  if(b.outcome==="cancelled") return 0;
+  if(b.outcome==="confirmed")  return claimsOf(b);
+  if(b.outcome==="has_rejections"){
+    const c=batchCounts(b);
+    const nonRejected=Math.max(0, claimsOf(b)-(b.items||[]).length);
+    return nonRejected + c.confirmed + c.cleared;
+  }
+  return 0; // still awaiting Medicare — nothing confirmed yet
+}
 
 /* ═════════════════════════════════════════════
    DATA LAYER  (Firebase real-time  OR  local preview)
@@ -650,7 +662,11 @@ function renderConfirmed(){
   const filtered=all.filter(inRange);
   const live=filtered.filter(b=>b.outcome!=="cancelled");
   const cancelled=filtered.filter(b=>b.outcome==="cancelled");
-  const totalClaims=live.reduce((s,b)=>s+claimsOf(b),0);
+  const fullClaims=live.reduce((s,b)=>s+claimsOf(b),0);
+  // Confirmed claims that live inside batches still being resolved (Pending Resolution).
+  const partialBatches=S.batches.filter(b=>batchTab(b)==="pending"&&b.outcome==="has_rejections"&&inRange(b));
+  const partialClaims=partialBatches.reduce((s,b)=>s+confirmedClaims(b),0);
+  const totalClaims=fullClaims+partialClaims;
   const list=sortByNewest(filtered);
 
   return `
@@ -658,6 +674,7 @@ function renderConfirmed(){
       <div class="card" style="flex:1;min-width:160px;margin:0;padding:14px 16px;">
         <div style="font-size:26px;font-weight:800;color:#059669;">${totalClaims}</div>
         <div style="font-size:11px;color:#6B7280;margin-top:2px;">Claims confirmed${(from||to)?" in range":" (all time)"}</div>
+        ${partialClaims>0?'<div style="font-size:10px;color:#9CA3AF;margin-top:3px;">includes '+partialClaims+' from '+partialBatches.length+' batch'+(partialBatches.length!==1?'es':'')+' still in Pending Resolution</div>':""}
       </div>
       <div class="card" style="flex:1;min-width:160px;margin:0;padding:14px 16px;">
         <div style="font-size:26px;font-weight:800;color:#374151;">${live.length}</div>
