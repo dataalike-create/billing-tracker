@@ -422,7 +422,9 @@ function renderBatchAction(batch){
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn btn-confirm" style="font-size:12px;padding:8px 18px;" data-action="confirm-all" data-bid="${esc(bid)}">&#10003; All confirmed</button>
         <button class="btn" style="background:#DC2626;color:#fff;font-size:12px;padding:8px 18px;border-radius:7px;border:none;font-family:inherit;cursor:pointer;font-weight:600;" data-action="add-rejected-item" data-bid="${esc(bid)}">&#10007; Log Pending Invoice</button>
+        <button class="btn" style="background:#6B7280;color:#fff;font-size:12px;padding:8px 18px;border-radius:7px;border:none;font-family:inherit;cursor:pointer;font-weight:600;" data-action="cancel-batch" data-bid="${esc(bid)}">&#8856; Home cancelled</button>
       </div>
+      <div style="font-size:11px;color:#9CA3AF;margin-top:8px;">If the visit didn't go ahead, mark the home cancelled.</div>
     </div>`;
 }
 
@@ -876,7 +878,7 @@ document.addEventListener("click",function(e){
     case "clear-all": doClearAllConfirmed(bid); break;
     case "check-batch": doCheckBatch(bid); break;
     case "confirm-all": doConfirmAll(bid); break;
-    case "cancel-batch": doCancelBatch(bid); break;
+    case "cancel-batch": if(confirm("Mark this whole batch as cancelled? It moves to Home cancelled and records 0 claims.")) doCancelBatch(bid); break;
     case "reactivate-batch": doReactivateBatch(bid); break;
     case "add-rejected-item": doAddRejectedItem(bid); break;
     case "resubmit-item": doResubmitItem(bid,iid); break;
